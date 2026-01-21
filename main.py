@@ -83,12 +83,13 @@ df_filt = df[mask].copy()
 st.sidebar.write(f"Filtered rows: {len(df_filt):,}")
 
 # --------------------------------------------------
-# MAIN TABS
+# MAIN NAVIGATION
 # --------------------------------------------------
 
-main_tab1, main_tab2 = st.tabs(["Overview", "Table"])
+st.sidebar.markdown("---")
+navigation = st.sidebar.radio("Navigation", ["Overview", "Table"])
 
-with main_tab1:
+if navigation == "Overview":
     # --------------------------------------------------
     # 3. OVERVIEW METRICS
     # --------------------------------------------------
@@ -310,7 +311,7 @@ reg_model, reg_metrics, clf_model, winner_metrics = train_models(df)
 # 7. ML INSIGHTS + BID STRATEGY SIMULATOR
 # --------------------------------------------------
 
-with main_tab1:
+if navigation == "Overview":
     st.subheader("ML: Price Prediction & Win Probability (For Upcoming Bids)")
 
     tab_reg, tab_clf, tab_sim = st.tabs(
@@ -695,7 +696,7 @@ with main_tab1:
         ]]
         st.dataframe(display_df, use_container_width=True)
 
-with main_tab2:
+if navigation == "Table":
     # --------------------------------------------------
     # TABLE VIEWS
     # --------------------------------------------------
@@ -713,9 +714,9 @@ with main_tab2:
         ]
         # Filter to only show columns that exist
         available_cols = [col for col in display_cols if col in df_filt.columns]
-        all_bids_df = df_filt[available_cols].sort_values(
+        all_bids_df = df_filt.sort_values(
             ["MONTH_START", "HAWKER_CENTRE", "STALL_NO", "BID_RANK"]
-        )
+        )[available_cols]
         st.dataframe(all_bids_df, use_container_width=True, height=600)
         
         st.download_button(
@@ -734,9 +735,9 @@ with main_tab2:
                 "TENDERER", "BID_VALUE", "NUM_BIDDERS", "SUCCESS"
             ]
             available_cols_win = [col for col in display_cols_win if col in winning_bids.columns]
-            winning_df = winning_bids[available_cols_win].sort_values(
+            winning_df = winning_bids.sort_values(
                 ["MONTH_START", "HAWKER_CENTRE", "STALL_NO"]
-            )
+            )[available_cols_win]
             st.dataframe(winning_df, use_container_width=True, height=600)
             
             st.download_button(
